@@ -257,7 +257,7 @@ class Deployer:
             with self.db_connection.cursor() as cursor:
                 if fail_count == 0:
                     cursor.execute("DELETE FROM deployment.deployment WHERE label = %s", (label,))
-                if fail_count == 1:
+                elif fail_count == 1:
                     cursor.execute(
                         "INSERT INTO deployment.deployment(`label`, `type`, `source_branch`, `source_sha`, "
                         "`deployed_at`, `title`, `url`, `author`, `fail_count`) "
@@ -272,7 +272,8 @@ class Deployer:
                         "WHERE `label` = %s",
                         (data.source_branch, data.source_sha, data.title, int(fail_count), data.label,))
 
-        except Exception:
+        except Exception as e:
+            logger.warning(f"Failed deleting/updating database entry for {label} with fail count {fail_count}: {e}")
             pass
 
         self.db_connection.commit()
@@ -388,8 +389,9 @@ class Deployer:
     @staticmethod
     def _copy_parameters_yml(git_folder: str, label):
         logger.info(f"Copy parameters.yml for {label}")
-        shutil.copy(os.path.join(git_folder, 'config/packages/parameters.yml.dist'),
-                    os.path.join(git_folder, 'config/packages/parameters.yml'))
+        parameters_yml_dist_file = os.path.join(git_folder, 'config/packages/parameters.yml.dist')
+        if os.path.isfile(parameters_yml_dist_file):
+            shutil.copy(parameters_yml_dist_file, os.path.join(git_folder, 'config/packages/parameters.yml'))
 
     @staticmethod
     def _run_subprocess(command, label: str, desc: str, cwd=None):
