@@ -6,19 +6,25 @@ Every pull request gets deployed on a wildcard domain. There are two options to 
 One can ignore certain commit hashes and certain GitHub labels using the configuration file. 
 There should already exist a label called **no auto-deploy**, which is in the list of ignored labels.
 
-If a deployment fails, the script remembers that and tries to deploy that commit at most 3 times.
+If a deployment fails, the script remembers that and tries to deploy that commit at most 3 times. 
+Further changes are just tried a single time.
 
 Additionally, the branches `master` and `develop` are deployed. 
-To add/remove branches, one needs to edit the database directly.
+To add branches, one needs to change to the script directory and run the following Python3 code:
+```python
+import prdeployer
+prdeployer.Deployer.add_github_branch('branchName')
+```
 
-A PHP index side shows a list of all deployed pull requests and branches.
+A PHP index side shows a list of all deployed pull requests and branches. For failed deployments, 
+it shows how often deploy failed and a log file.
 
 The script relies on a MySQL/MariaDB database table called `deployment`. 
 To create that table, one can use the file *create_deployment_table.sql*.
 
 For every deployment, a different database is created with a different database user and random password. 
 The deployment is configured with the password using the *.env.local* file. 
-Additionally, a *.env.dev.local* file is created to set *SECURE_SCHEME* to HTTPS.
+Additionally, files and folders inside the folder *overwrite* will be copied to the deployment folder during each deployment.
 
 ## Configuration options
 In _config.py_ you can change MariaDB credentials 
@@ -35,11 +41,14 @@ For pull requests, _pr_ concatenated with the number of the GitHub pull request 
 For branches, their (escaped) name is used, e.g. `master`, `develop`. 
 Be careful, they are used directly as directory names and are not escaped in database queries.
 
+During each deployment, the log file of the current deployment is saved 
+to the directory configured in `LABEL_LOG_FILE_DIRECTORY` with the name *{label}.txt*. 
+
 ## Cronjob
 The script runs every 15 minutes using the following cronjob:
 
 ```
-/15 * * * * /usr/bin/flock -w 300 /opt/prdeployer/prdeployer.lock /opt/prdeployer/venv/bin/python3 /opt/prdeployer/prdeployer.py >/dev/null 2>&1
+/15 * * * * /usr/bin/flock -w 300 /opt/prdeployer/prdeployer.lock /usr/bin/python3 /opt/prdeployer/prdeployer.py >/dev/null 2>&1
 ```
 
 [flock](https://linux.die.net/man/2/flock) is used to prohibit multiple concurrent executions.

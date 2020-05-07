@@ -5,13 +5,13 @@ import os
 import re
 import shutil
 import subprocess
+from distutils.dir_util import copy_tree
 from enum import Enum
 from string import Template
 from typing import List, Dict
 
 import pymysql
 import requests
-
 from config import Config
 from logger import ColoredLogger
 
@@ -198,6 +198,29 @@ class Deployer:
         else:
             raise Exception(f"Failed to get GitHub data for branch {branch}: Error {response.status_code}")
 
+    @staticmethod
+    def add_github_branch(branch: str):
+        logger.info(f"Add GitHub branch {branch}")
+        api_url = f'https://api.github.com/repos/{Config.GITHUB_REPO_OWNER}/{Config.GITHUB_REPO_NAME}/branches/{branch}'
+        headers = {'Content-Type': 'application/json',
+                   'Accept': 'application/vnd.github.v3+json'}
+        response = requests.get(api_url, headers=headers)
+        if response.status_code == 200:
+            result = json.loads(response.content.decode('utf-8'))
+            latest_sha = result['commit']['sha']
+            clone_url = f'https://github.com/{Config.GITHUB_REPO_OWNER}/{Config.GITHUB_REPO_NAME}.git'
+            title = result['commit']['commit']['message'].partition('\n')[0]
+            author = result['commit']['commit']['author']['name']
+            data = DeploymentData(branch, latest_sha, branch, clone_url, title, result['_links']['html'],
+                                  author, DeploymentType.BRANCH)
+            logger.debug(str(data))
+            d = Deployer()
+            d.connect_db()
+            d.create_deployment(data)
+            d.close_db()
+        else:
+            logger.error(f"Failed to get GitHub data for branch {branch}: Error {response.status_code}")
+
     def update_deployment(self, data: DeploymentData):
         self._add_label_log_handler(data.label)
         git_folder = os.path.join(Config.WEB_FOLDER, data.label)
@@ -209,6 +232,7 @@ class Deployer:
                              "run git reset", git_folder)
 
         self._copy_parameters_yml(git_folder, data.label)
+        self._overwrite_files(git_folder, data.label)
 
         # Set ownership
         logger.info(f"Set file ownership for {data.label}")
@@ -261,7 +285,9 @@ class Deployer:
             with self.db_connection.cursor() as cursor:
                 if fail_count == 0:
                     cursor.execute("DELETE FROM deployment.deployment WHERE label = %s", (label,))
-                    os.unlink(os.path.join(Config.LABEL_LOG_FILE_DIRECTORY, data.label + '.txt'))
+                    log_file = os.path.join(Config.LABEL_LOG_FILE_DIRECTORY, label + '.txt')
+                    if os.path.exists(log_file):
+                        os.unlink(log_file)
                 elif fail_count == 1:
                     cursor.execute(
                         "INSERT INTO deployment.deployment(`label`, `type`, `source_branch`, `source_sha`, "
@@ -308,12 +334,9 @@ class Deployer:
         self.db_connection.commit()
 
         self._copy_parameters_yml(git_folder, data.label)
+        self._overwrite_files(git_folder, data.label)
 
         logger.info(f"Set ownership and create .env.local file for {data.label}")
-        # Create .env.dev.local file
-        with open(os.path.join(git_folder, '.env.dev.local'), 'w') as env_file:
-            print('SECURE_SCHEME="https"', file=env_file)
-
         # Set ownership
         self._run_subprocess("chown -hR www-data:www-data .", data.label, "set file ownership", git_folder)
 
@@ -398,6 +421,12 @@ class Deployer:
         if os.path.isfile(parameters_yml_dist_file):
             logger.info(f"Copy parameters.yml for {label}")
             shutil.copy(parameters_yml_dist_file, os.path.join(git_folder, 'config/packages/parameters.yml'))
+
+    @staticmethod
+    def _overwrite_files(git_folder: str, label):
+        logger.info(f"Copy overwrite folder for {label}")
+        overwrite_folder = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'overwrite')
+        copy_tree(overwrite_folder, git_folder, preserve_mode=False, preserve_times=False)
 
     @staticmethod
     def _run_subprocess(command, label: str, desc: str, cwd=None):

@@ -95,10 +95,14 @@ $db->close();
     <p class="logo"><img src="https://share.catrob.at/images/logo/catrobat_text.svg" alt="Catrobat Logo"/></p>
     <h1>Catroweb Test Deployments</h1>
 
-  <?php $label = explode('.', $_SERVER['HTTP_HOST'])[0];
-  if ($label !== "index"): ?>
+  <?php
+  $regex = "/" . str_replace(".", "\\.",
+    str_replace(["https://", "http://", "/"], "", sprintf($url_template, "([A-Za-z0-9]+)"))
+  ) . "/";
+  $match = preg_match($regex, $_SERVER['HTTP_HOST'], $matches);
+  if ($match === 1 && $matches[1] !== 'index'): ?>
       <div class="alert alert-warning mt-4">
-          Deployment with label <code><?php echo $label; ?></code> was not found.
+          Deployment with label <code><?php echo $matches[1]; ?></code> was not found.
       </div>
   <?php endif; ?>
     <table class="table table-responsive-md mt-4">
@@ -109,7 +113,7 @@ $db->close();
             <th scope="col">Title</th>
             <th scope="col">Author</th>
             <th scope="col">Commit</th>
-            <th scope="col">Deploy Date (UTC)</th>
+            <th scope="col">Deploy Date</th>
             <th scope="col"></th>
         </tr>
         </thead>
@@ -166,7 +170,7 @@ $db->close();
               <th scope="col">Title</th>
               <th scope="col">Author</th>
               <th scope="col">Commit</th>
-              <th scope="col">Deploy Date (UTC)</th>
+              <th scope="col">Deploy Date</th>
               <th scope="col">Fail Count</th>
               <th scope="col"></th>
           </tr>
