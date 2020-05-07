@@ -63,6 +63,7 @@ class Deployer:
     db_connection: pymysql.Connection
     _nginx_template: Template
     _available_php_versions: List[str]
+    _active_label_log_handler: List[logging.FileHandler] = []
 
     def __init__(self):
         # initialize variables
@@ -146,6 +147,7 @@ class Deployer:
                         self.delete_deployment(label, data, fail_count + 1)
                     except Exception as e:
                         logger.error(e)
+                self._clear_label_log_handlers()
 
             # delete closed pull requests
             cursor.execute(
@@ -169,6 +171,7 @@ class Deployer:
                     self.update_github_branch(row)
                 except Exception as e:
                     logger.error(e)
+                self._clear_label_log_handlers()
 
     def update_github_branch(self, row):
         branch = row['source_branch']
@@ -196,6 +199,7 @@ class Deployer:
             raise Exception(f"Failed to get GitHub data for branch {branch}: Error {response.status_code}")
 
     def update_deployment(self, data: DeploymentData):
+        self._add_label_log_handler(data.label)
         git_folder = os.path.join(Config.WEB_FOLDER, data.label)
 
         # git fetch, git reset
@@ -257,6 +261,7 @@ class Deployer:
             with self.db_connection.cursor() as cursor:
                 if fail_count == 0:
                     cursor.execute("DELETE FROM deployment.deployment WHERE label = %s", (label,))
+                    os.unlink(os.path.join(Config.LABEL_LOG_FILE_DIRECTORY, data.label + '.txt'))
                 elif fail_count == 1:
                     cursor.execute(
                         "INSERT INTO deployment.deployment(`label`, `type`, `source_branch`, `source_sha`, "
@@ -279,6 +284,7 @@ class Deployer:
         self.db_connection.commit()
 
     def create_deployment(self, data: DeploymentData, db_entry_exists=False):
+        self._add_label_log_handler(data.label)
         git_folder = os.path.join(Config.WEB_FOLDER, data.label)
 
         # Clone Repository
@@ -388,9 +394,9 @@ class Deployer:
 
     @staticmethod
     def _copy_parameters_yml(git_folder: str, label):
-        logger.info(f"Copy parameters.yml for {label}")
         parameters_yml_dist_file = os.path.join(git_folder, 'config/packages/parameters.yml.dist')
         if os.path.isfile(parameters_yml_dist_file):
+            logger.info(f"Copy parameters.yml for {label}")
             shutil.copy(parameters_yml_dist_file, os.path.join(git_folder, 'config/packages/parameters.yml'))
 
     @staticmethod
@@ -491,6 +497,18 @@ class Deployer:
         versions.sort(reverse=True)  # newest version should be preferred
         logger.info('PHP Versions installed on the system: %s', ', '.join(versions))
         return versions
+
+    def _add_label_log_handler(self, label):
+        label_log_file_handler = ColoredLogger.create_file_handler(
+            os.path.join(Config.LABEL_LOG_FILE_DIRECTORY, label + '.txt')
+        )
+        self._active_label_log_handler.append(label_log_file_handler)
+        logger.addHandler(label_log_file_handler)
+
+    def _clear_label_log_handlers(self):
+        for handler in self._active_label_log_handler:
+            logger.removeHandler(handler)
+        self._active_label_log_handler.clear()
 
 
 if __name__ == '__main__':

@@ -64,3 +64,11 @@ class ColoredLogger(logging.Logger):
         else:
             message = message.replace("$RESET", "").replace("$BOLD", "")
         return message
+
+    @staticmethod
+    def create_file_handler(path: str):
+        file_formatter = logging.Formatter(ColoredLogger.FILE_FORMAT)
+        file_handler = logging.FileHandler(filename=path, mode='w')
+        file_handler.setLevel(logging.DEBUG)
+        file_handler.setFormatter(file_formatter)
+        return file_handler

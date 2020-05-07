@@ -7,6 +7,7 @@ class Config:
     GITHUB_REPO_OWNER = 'Catrobat'
     GITHUB_REPO_NAME = 'Catroweb-Symfony'
     LOG_FILE = '/var/log/catroweb_deployer.log'
+    LABEL_LOG_FILE_DIRECTORY = '/var/www/index/logs/'
     IGNORED_COMMITS = [
         '04aebd23f959aab4d7bf76609686f531cb3426b9',  # SHARE-000
     ]  # list of sha-1 commit hashes
