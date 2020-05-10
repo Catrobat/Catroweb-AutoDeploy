@@ -292,9 +292,12 @@ class Deployer:
                     cursor.execute(
                         "INSERT INTO deployment.deployment(`label`, `type`, `source_branch`, `source_sha`, "
                         "`deployed_at`, `title`, `url`, `author`, `fail_count`) "
-                        "VALUES(%s, %s, %s, %s, CURRENT_TIMESTAMP, %s, %s, %s, %s)",
+                        "VALUES(%s, %s, %s, %s, CURRENT_TIMESTAMP, %s, %s, %s, %s) "
+                        "ON DUPLICATE KEY UPDATE `source_branch` = %s, `source_sha` = %s, "
+                        "`deployed_at` = CURRENT_TIMESTAMP, `title` = %s, `fail_count` = %s",
                         (data.label, data.type.value, data.source_branch, data.source_sha, data.title, data.url,
-                         data.author, int(fail_count),))
+                         data.author, int(fail_count),
+                         data.source_branch, data.source_sha, data.title, int(fail_count)))
                 else:
                     cursor.execute(
                         "UPDATE deployment.deployment "
