@@ -95,6 +95,9 @@ class Deployer:
         if p.wait() != 0:
             logger.error("Failed to reload nginx")
         logger.info('Deployer.run() finished')
+        with open(os.path.join(Config.LABEL_LOG_FILE_DIRECTORY, 'run.log'), 'a') as f:
+            from datetime import datetime
+            f.write(datetime.now().strftime("%Y-%m-%d %H:%M:%S") + '\n')
 
     def process_pull_requests(self, pull_requests):
         active_labels = []

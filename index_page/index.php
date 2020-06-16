@@ -204,6 +204,30 @@ $db->close();
       </table>
       <p>After three failing builds, the system gives up until the commit hash changes.</p>
   <?php endif; ?>
+    <p>Last script run: <span id="last-run"><?php
+        $f = fopen('logs/run.log', 'r');
+        $cursor = -1;
+        fseek($f, $cursor, SEEK_END);
+        $char = fgetc($f);
+
+        // Trim trailing newline chars of the file
+        while ($char === "\n" || $char === "\r")
+        {
+          fseek($f, $cursor--, SEEK_END);
+          $char = fgetc($f);
+        }
+
+        $last_line = '';
+        // Read until the start of file or first newline char
+        while ($char !== false && $char !== "\n" && $char !== "\r")
+        {
+          $last_line = $char . $last_line;
+          fseek($f, $cursor--, SEEK_END);
+          $char = fgetc($f);
+        }
+
+        echo $last_line;
+        ?></span></p>
 </div>
 </body>
 </html>
