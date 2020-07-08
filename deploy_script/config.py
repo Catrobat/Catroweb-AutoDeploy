@@ -5,7 +5,7 @@ class Config:
     NGINX_SITES_AVAILABLE = '/etc/nginx/sites-available/'
     NGINX_SITES_ENABLED = '/etc/nginx/sites-enabled/'
     GITHUB_REPO_OWNER = 'Catrobat'
-    GITHUB_REPO_NAME = 'Catroweb-Symfony'
+    GITHUB_REPO_NAME = 'Catroweb'
     LOG_FILE = '/var/log/catroweb_deployer.log'
     LABEL_LOG_FILE_DIRECTORY = '/var/www/index/logs/'
     IGNORED_COMMITS = [
