@@ -1,6 +1,18 @@
+# First, make sure that NGINX' `mime.types` file includes 'image/webp webp'
+include /etc/nginx/mime.types;
+
+# Checking if HTTP's `ACCEPT` header contains 'webp'
+# if not supported - just download uri
+# if supported - define path that cant be found .. fallback will be webp converter
+map $http_accept $handle_webp {
+  default $uri;
+  "~*webp" "use_webp_fallback";
+}
+
 server {
     listen 443 ssl;
     listen [::]:443 ssl;
+    client_max_body_size 768M;
 
     ssl_certificate     /etc/ssl/certs/ssl-cert-snakeoil.pem;
     ssl_certificate_key /etc/ssl/private/ssl-cert-snakeoil.key;
@@ -12,12 +24,18 @@ server {
 
     server_name index-web.catrobat.ist.tugraz.at catrobat-web-test-1.ist.tugraz.at;
 
+    location ~* ^.+\.(jpe?g|png) {
+        # images should be served in webp format if supported by client
+        set $args $args&source=$document_root$fastcgi_script_name;
+        try_files $handle_webp /webp-on-demand.php$is_args$args;                                                                                                                                                                                                    
+    }
+
     location / {
         # try to serve file directly, fallback to index.php
         try_files $uri /index.php$is_args$args;
     }
 
-    location ~ ^/index\.php(/|$) {
+    location ~ \.php(/|$) {
         fastcgi_pass unix:/var/run/php/php7.4-fpm.sock;
         fastcgi_split_path_info ^(.+\.php)(/.*)$;
         include fastcgi_params;
@@ -26,7 +44,7 @@ server {
         fastcgi_param HTTP_SCHEME https;
         keepalive_timeout 90;
 
-        fastcgi_buffers 32 4k;
+        fastcgi_buffers 32 4k;                                                                                                                                                                                                                                                                                                                                       
         fastcgi_buffer_size 32k;
 
         send_timeout 300;
@@ -41,7 +59,6 @@ server {
 
     access_log /var/log/nginx/access.log combined;
     error_log /var/log/nginx/error.log warn;
-
 
     location ~ \.php$ {
         include snippets/fastcgi-php.conf;
