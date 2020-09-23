@@ -67,3 +67,11 @@ The server should run using HTTPS, otherwise, errors or warnings may occur in th
    ```
    /15 * * * * /usr/bin/flock -w 300 /opt/prdeployer/prdeployer.lock /usr/bin/python3 /opt/prdeployer/prdeployer.py >/dev/null 2>&1
    ```
+
+## Update the Autodeployer system after changes
+
+For changes in the python & php scripts just run: 
+```
+/opt/update-prdeployer-git.sh 
+```
+However, all other file changes should be done manually since they could contain production secrets. (Etc. `overwrite`folder)
