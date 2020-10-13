@@ -1,3 +1,14 @@
+# First, make sure that NGINX' `mime.types` file includes 'image/webp webp'
+include /etc/nginx/mime.types;
+
+# Checking if HTTP's `ACCEPT` header contains 'webp'
+# if not supported - just download uri
+# if supported - define path that cant be found .. fallback will be webp converter
+map $$http_accept $$handle_webp {
+  default $$uri;
+  "~*webp" "use_webp_fallback";
+}
+
 server {
     listen 443 ssl;
     listen [::]:443 ssl;
@@ -16,6 +27,12 @@ server {
     location / {
         # try to serve file directly, fallback to index.php
         try_files $$uri /index.php$$is_args$$args;
+    }
+    
+    location ~* ^.+\.(jpe?g|png) {
+        # images should be served in webp format if supported by client
+        set $$args $$args&source=$$document_root$$fastcgi_script_name;
+        try_files $$handle_webp /webp-on-demand.php$$is_args$$args;                                                                                                                                                                                                    
     }
 
     location ~ ^/index\.php(/|$$) {
