@@ -58,6 +58,14 @@ The script runs every 15 minutes using the following cronjob:
 The script needs Python 3 and depends on the following packages from PyPI:
  * [requests (v2.23.0)](https://pypi.org/project/requests/)
  * [PyMySQL (v0.9.3)](https://pypi.org/project/pymysql/)
+ 
+## Update the Autodeployer system after changes
+
+For changes in the python & php scripts just run: 
+```
+/opt/update-prdeployer-git.sh 
+```
+All other file changes must be updated manually since they could contain production secrets. (Eg. `overwrite`folder)
 
 ## Author
 Script coded in 2020 by [Michael Fürnschuß](https://www.mf.at), member of the Catroweb team.
