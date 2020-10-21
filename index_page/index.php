@@ -101,7 +101,7 @@ $db->close();
   ) . "/";
   $match = preg_match($regex, $_SERVER['HTTP_HOST'], $matches);
   if ($match === 1 && $matches[1] !== 'index'): ?>
-      <div class="alert alert-warning mt-4">
+      <div class="alert alert-error mt-4">
           Deployment with label <code><?php echo $matches[1]; ?></code> was not found.
       </div>
   <?php endif; ?>
@@ -143,7 +143,7 @@ $db->close();
                           alt="<?php echo $entry['source_sha']; ?>"><?php echo $entry['source_sha']; ?></code></td>
                 <td><?php echo $entry['deployed_at']; ?></td>
                 <td class="actions">
-                    <a href="<?php echo $url; ?>">
+                    <a href="<?php echo $url; ?>" target="_blank">
                         <svg aria-hidden="true" height="25" viewBox="0 0 512 512">
                             <path fill="currentColor"
                                   d="M432,320H400a16,16,0,0,0-16,16V448H64V128H208a16,16,0,0,0,16-16V80a16,16,0,0,0-16-16H48A48,48,0,0,0,0,112V464a48,48,0,0,0,48,48H400a48,48,0,0,0,48-48V336A16,16,0,0,0,432,320ZM488,0h-128c-21.37,0-32.05,25.91-17,41l35.73,35.73L135,320.37a24,24,0,0,0,0,34L157.67,377a24,24,0,0,0,34,0L435.28,133.32,471,169c15,15,41,4.5,41-17V24A24,24,0,0,0,488,0Z"></path>
