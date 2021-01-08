@@ -420,6 +420,8 @@ class Deployer:
                              git_folder)
         logger.info(f"Run grunt for {label}")
         self._run_subprocess("sudo -u www-data grunt", label, "run grunt", git_folder)
+        logger.info(f"Run webpack encore for {label}")
+        self._run_subprocess("sudo -u www-data npm run encore dev", label, "run webpack encore", git_folder)
 
     @staticmethod
     def _copy_parameters_yml(git_folder: str, label):
