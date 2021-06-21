@@ -9,6 +9,8 @@ There should already exist a label called **no auto-deploy**, which is in the li
 If a deployment fails, the script remembers that and tries to deploy that commit at most 3 times. 
 Further changes are just tried a single time.
 
+#### Deploying branches
+
 Additionally, the branches `master` and `develop` are deployed. 
 To add branches, one needs to change to the script directory and run the following Python3 code:
 ```python
@@ -30,13 +32,16 @@ Drop USER 'master'@'localhost'
 ```
 - add branch again using the python script
 
+#### The Index page
 
 A PHP index side shows a list of all deployed pull requests and branches. For failed deployments, 
 it shows how often deploy failed and a log file.
 
+#### Deployment table
 The script relies on a MySQL/MariaDB database table called `deployment`. 
 To create that table, one can use the file *create_deployment_table.sql*.
 
+#### Deployment DB config
 For every deployment, a different database is created with a different database user and random password. 
 The deployment is configured with the password using the *.env.local* file. 
 Additionally, files and folders inside the folder *overwrite* will be copied to the deployment folder during each deployment.
