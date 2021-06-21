@@ -16,6 +16,21 @@ import prdeployer
 prdeployer.Deployer.add_github_branch('branchName')
 ```
 
+#### Reset a branch
+
+- remove directory
+```
+rm -rf /var/www/catroweb/master
+```
+- remove database & user
+```
+mysql -u root
+Drop DATABASE master
+Drop USER 'master'@'localhost'
+```
+- add branch again using the python script
+
+
 A PHP index side shows a list of all deployed pull requests and branches. For failed deployments, 
 it shows how often deploy failed and a log file.
 
