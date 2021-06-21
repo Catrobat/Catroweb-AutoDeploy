@@ -18,17 +18,19 @@ import prdeployer
 prdeployer.Deployer.add_github_branch('branchName')
 ```
 
-#### Reset a branch
+#### Reset a branch (E.g: master)
 
 - remove directory
 ```
 rm -rf /var/www/catroweb/master
 ```
-- remove database & user
+- remove database & user & deployment table entry
 ```
 mysql -u root
-Drop DATABASE master
-Drop USER 'master'@'localhost'
+Drop DATABASE master;
+Drop USER 'master'@'localhost';
+use deployment
+DELETE FROM deployment WHERE label='master';
 ```
 - add branch again using the python script
 
