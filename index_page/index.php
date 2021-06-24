@@ -92,7 +92,7 @@ $db->close();
 </head>
 <body>
 <div class="container">
-    <p class="logo"><img src="https://share.catrob.at/images/logo/catrobat_text.svg" alt="Catrobat Logo"/></p>
+    <p class="logo"><img src="https://share.catrob.at/images/logo/logo_catrobat_text.svg" alt="Catrobat Logo"/></p>
     <h1>Catroweb Test Deployments</h1>
 
   <?php
