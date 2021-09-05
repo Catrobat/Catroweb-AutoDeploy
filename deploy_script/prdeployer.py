@@ -421,8 +421,8 @@ class Deployer:
         logger.info(f"Run grunt for {label}")
         try:
             self._run_subprocess("sudo -u www-data grunt", label, "run grunt (deprecated)", git_folder)
-        except subprocess.CalledProcessError as e:
-            print("If grunt is not installed, webpack should be enough: ", e.output)
+        except:
+            print("If grunt is not installed, webpack should be enough!")
         logger.info(f"Run webpack encore for {label}")
         self._run_subprocess("sudo -u www-data npm run encore dev", label, "run webpack encore", git_folder)
 
