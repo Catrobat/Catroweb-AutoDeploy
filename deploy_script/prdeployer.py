@@ -425,6 +425,8 @@ class Deployer:
             print("If grunt is not installed, webpack should be enough!")
         logger.info(f"Run webpack encore for {label}")
         self._run_subprocess("sudo -u www-data npm run encore dev", label, "run webpack encore", git_folder)
+        logger.info(f"Run JWT config init encore for {label}")
+        self._run_subprocess("sudo -u www-data sh docker/app/init-jwt-config.sh", label, "sh docker/app/init-jwt-config.sh", git_folder)
 
     @staticmethod
     def _copy_parameters_yml(git_folder: str, label):
