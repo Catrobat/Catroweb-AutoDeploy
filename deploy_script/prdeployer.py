@@ -353,6 +353,7 @@ class Deployer:
             print(f"DATABASE_NAME={data.label}", file=env_file)
             print(f"DATABASE_USER={data.label}", file=env_file)
             print(f"DATABASE_PASSWORD={db_password}", file=env_file)
+            print(f"APP_ENV=prod", file=env_file)
 
         php_version = self._detect_required_php_version(data.label)
         logger.info(f"Detected PHP version for {data.label} is {php_version}")
@@ -418,11 +419,6 @@ class Deployer:
         logger.info(f"Run catro:reset for {label}")
         self._run_subprocess("sudo -u www-data php bin/console catro:reset --hard", label, "run catro:reset",
                              git_folder)
-        logger.info(f"Run grunt for {label}")
-        try:
-            self._run_subprocess("sudo -u www-data grunt", label, "run grunt (deprecated)", git_folder)
-        except:
-            print("If grunt is not installed, webpack should be enough!")
         logger.info(f"Run webpack encore for {label}")
         self._run_subprocess("sudo -u www-data npm run encore dev", label, "run webpack encore", git_folder)
         logger.info(f"Run JWT config init encore for {label}")
