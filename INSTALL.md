@@ -56,7 +56,7 @@ The server should run using HTTPS, otherwise, errors or warnings may occur in th
 1. Install needed packages (use PHP version needed, multiple versions possible)
    ```bash
    apt-get install nginx mariadb-server ssl-cert npm curl python3 git
-   apt-get install php7.4-common php7.4-cli php7.4-fpm php7.4-curl php7.4-intl php7.4-gd php7.4-zip php7.4-mysql php7.4-xml php7.4-mbstring
+   apt-get install php8.1-common php8.1-cli php8.1-fpm php8.1-curl php8.1-intl php8.1-gd php8.1-zip php8.1-mysql php8.1-xml php8.1-mbstring
    apt-get install php-apcu php-imagick php-gettext composer
    ```
 1. Copy the file *nginx_index_site* to */etc/nginx/sites-available/index*
