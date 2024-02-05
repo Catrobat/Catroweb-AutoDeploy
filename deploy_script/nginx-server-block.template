@@ -22,7 +22,7 @@ server {
 
     root /var/www/catroweb/$label/public/;
 
-    server_name $label-web.catrobat.ist.tugraz.at;
+    server_name $label.web-test.catrobat.org;
 
     location / {
         # try to serve file directly, fallback to index.php
