@@ -78,7 +78,7 @@ The script runs every 15 minutes using the following cronjob:
 
 ## Python Packages
 The script needs Python 3 and depends on the following packages from PyPI:
- * [requests (v2.23.0)](https://pypi.org/project/requests/)
+ * [requests (v2.31.0)](https://pypi.org/project/requests/)
  * [PyMySQL (v0.9.3)](https://pypi.org/project/pymysql/)
  
 ## Update the Autodeployer system after changes
