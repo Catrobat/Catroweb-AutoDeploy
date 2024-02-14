@@ -22,7 +22,7 @@ server {
 
     root /var/www/index/;
 
-    server_name index-web.catrobat.ist.tugraz.at catrobat-web-test-1.ist.tugraz.at;
+    server_name web-test.catrobat.org;
 
     location ~* ^.+\.(jpe?g|png) {
         # images should be served in webp format if supported by client
